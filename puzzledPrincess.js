@@ -33,7 +33,7 @@ class PrincessMarker extends Marker {
         if (this.inBoard) {
             return;
         }
-        
+
         this.dragging = true;
     }
 
@@ -41,13 +41,13 @@ class PrincessMarker extends Marker {
         if (this.inBoard) {
             return;
         }
-        
+
         this.dragging = false;
         let row = Math.floor((this.y - this.board.y) / this.board.squareSize);
         let col = Math.floor((this.x - this.board.x) / this.board.squareSize);
 
-        if (row < 0 || row > 2  || col < 0 || col > 2 ||
-        this.board.dataModel[row][col] != this.board.emptySquareSymbol) {
+        if (row < 0 || row > 2 || col < 0 || col > 2 ||
+            this.board.dataModel[row][col] != this.board.emptySquareSymbol) {
             this.x = this.startX;
             this.y = this.startY;
             return;
@@ -69,10 +69,10 @@ class PrincessMarker extends Marker {
 
 class StrangerMarker extends Marker {
     constructor(board) {
-        super(board,'strangerFace.png', 'Stranger');
-        
+        super(board, 'strangerFace.png', 'Stranger');
+
     }
-    
+
     handleGameLoop() {
         if (this.board) {
             return;
@@ -83,12 +83,12 @@ class StrangerMarker extends Marker {
             row = Math.round(Math.random() * (this.board.size - 1));
             col = Math.round(Math.random() * (this.board.size - 1));
         } while (this.board.dataModel[row][col] !==
-        this.board.emptySquareSymbol);
-        
+            this.board.emptySquareSymbol);
+
         this.board.dataModel[row][col] = this.squareSymbol;
         this.playInSquare(row, col);
         this.board.takeTurns();
-        }
+    }
 }
 
 
@@ -113,15 +113,28 @@ class TicTacToe extends Sprite {
     }
 
     takeTurns() {
-        //this.activeMarker = new PrincessMarker(this);
-        if (!this.activeMarker){
-            
+        if (!this.activeMarker) {
+            if (Math.random() < .5)
+                this.activeMarker = new PrincessMarker(this);
+            else this.activeMarker = new StrangerMarker(this);
         }
+        
+        else if (this.activeMarker instanceof PrincessMarker) {
+            // princess has moved; now it's stranger's turn
+            this.activeMarker = new StrangerMarker(this);
+        }
+        
+        else if (this.activeMarker instanceof StrangerMarker) {
+            // stranger has moved; now it's princess's turn
+            this.activeMarker = new PrincessMarker(this);
+        }
+
+
     }
 
     debugBoard() {
         let moveCount = 0;
-        
+
         let boardString = '\n';
         for (let row = 0; row < this.boardSize; row = row + 1) {
             for (let col = 0; col < this.boardSize; col = col + 1) {
