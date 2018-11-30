@@ -74,7 +74,7 @@ class StrangerMarker extends Marker {
     }
 
     handleGameLoop() {
-        if (this.board) {
+        if (this.inBoard) {
             return;
         }
         // Mark a random empty square.
@@ -100,44 +100,96 @@ class TicTacToe extends Sprite {
         this.x = 300;
         this.y = 85;
         this.squareSize = 150;
-        this.boardSize = 3;
+        this.size = 3;
         this.activeMarker; // variable exists, but value is undefined
         this.emptySquareSymbol = '-';
         this.dataModel = [];
-        for (let row = 0; row < this.boardSize; row = row + 1) {
+        for (let row = 0; row < this.size; row = row + 1) {
             this.dataModel[row] = [];
-            for (let col = 0; col < this.boardSize; col = col + 1) {
+            for (let col = 0; col < this.size; col = col + 1) {
                 this.dataModel[row][col] = this.emptySquareSymbol;
             }
         }
-    }
 
+        // are there three of the same markers diagonally from the upper left
+        if (this.board[0][0] === this.board[1][1] &&
+            this.board[1][1] === this.board[2][2] &&
+            this.board[2][2] !== this.emptySquareSymbol) {
+            return true;
+        }
+
+        // are there three of the same markers diagonally from the upper right
+        if (this.board[2][2] === this.board[1][1] &&
+            this.board[1][1] === this.board[2][0] &&
+            this.board[2][0] !== this.emptySquareSymbol) {
+            return true;
+        }
+
+        // are there three of the same markers horizontally
+        for (let row = 0; row < 3; row++) {
+            if (this.board[row][2] === this.board[row][1] &&
+                this.board[row][1] === this.board[row][0] &&
+                this.board[row][0] !== this.emptySquareSymbol) {
+                return true;
+            }
+        }
+
+        // are there three of the same markers vertically
+        for (let col = 0; col < 3; col++) {
+            if (this.board[2][col] === this.board[1][col] &&
+                this.board[1][col] === this.board[2][col] &&
+                this.board[2][col] !== this.emptySquareSymbol) {
+                return true;
+            }
+
+        }
+        
+        return false;
+    }
+    
     takeTurns() {
         if (!this.activeMarker) {
             if (Math.random() < .5)
                 this.activeMarker = new PrincessMarker(this);
             else this.activeMarker = new StrangerMarker(this);
         }
-        
+
         else if (this.activeMarker instanceof PrincessMarker) {
             // princess has moved; now it's stranger's turn
             this.activeMarker = new StrangerMarker(this);
         }
-        
+
         else if (this.activeMarker instanceof StrangerMarker) {
             // stranger has moved; now it's princess's turn
             this.activeMarker = new PrincessMarker(this);
         }
 
+        if (this.gameIsWon()) {
+            let message = 'Game Over. \n';
+            if (this.activeMarker instanceof PrincessMarker) {
+                message = message + 'The Princess Wins';
+            }
+            else if (this.activeMarker instanceof StrangerMarker) {
+                message = message + 'The Stranger Wins';
 
+            }
+
+            game.end(message);
+            return;
+        }
+
+        if (this.gameIsDrawn()) {
+            game.end('Game Over \n The Game Ends in a Draw');
+            return;
+        }
     }
 
     debugBoard() {
         let moveCount = 0;
 
         let boardString = '\n';
-        for (let row = 0; row < this.boardSize; row = row + 1) {
-            for (let col = 0; col < this.boardSize; col = col + 1) {
+        for (let row = 0; row < this.size; row = row + 1) {
+            for (let col = 0; col < this.size; col = col + 1) {
                 boardString = boardString + this.dataModel[row][col] + ' ';
                 if (this.dataModel[row][col] !== this.emptySquareSymbol) {
                     moveCount++;
@@ -147,6 +199,10 @@ class TicTacToe extends Sprite {
         }
 
         console.log('The Data Model After ' + moveCount + ' Move(s):' + boardString);
+    }
+    
+    gameIsDrawn() {
+        
     }
 }
 
