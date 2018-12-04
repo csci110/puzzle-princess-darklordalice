@@ -111,8 +111,8 @@ class TicTacToe extends Sprite {
             }
         }
     }
-    
-gameIsWon() {
+
+    gameIsWon() {
         // are there three of the same markers diagonally from the upper left
         if (this.dataModel[0][0] === this.dataModel[1][1] &&
             this.dataModel[1][1] === this.dataModel[2][2] &&
@@ -121,7 +121,7 @@ gameIsWon() {
         }
 
         // are there three of the same markers diagonally from the upper right
-        if (this.dataModel[2][2] === this.dataModel[1][1] &&
+        if (this.dataModel[0][2] === this.dataModel[1][1] &&
             this.dataModel[1][1] === this.dataModel[2][0] &&
             this.dataModel[2][0] !== this.emptySquareSymbol) {
             return true;
@@ -129,16 +129,16 @@ gameIsWon() {
 
         // are there three of the same markers horizontally
         for (let row = 0; row < 3; row++) {
-            if (this.dataModel[row][2] === this.dataModel[row][1] &&
-                this.dataModel[row][1] === this.dataModel[row][0] &&
-                this.dataModel[row][0] !== this.emptySquareSymbol) {
+            if (this.dataModel[row][0] === this.dataModel[row][1] &&
+                this.dataModel[row][1] === this.dataModel[row][2] &&
+                this.dataModel[row][2] !== this.emptySquareSymbol) {
                 return true;
             }
         }
 
         // are there three of the same markers vertically
         for (let col = 0; col < 3; col++) {
-            if (this.dataModel[2][col] === this.dataModel[1][col] &&
+            if (this.dataModel[0][col] === this.dataModel[1][col] &&
                 this.dataModel[1][col] === this.dataModel[2][col] &&
                 this.dataModel[2][col] !== this.emptySquareSymbol) {
                 return true;
@@ -149,73 +149,70 @@ gameIsWon() {
         return false;
     }
 
-takeTurns() {
-    if (!this.activeMarker) {
-        if (Math.random() < .5)
-            this.activeMarker = new PrincessMarker(this);
-        else this.activeMarker = new StrangerMarker(this);
-    }
-
-    else if (this.activeMarker instanceof PrincessMarker) {
-        // princess has moved; now it's stranger's turn
-        this.activeMarker = new StrangerMarker(this);
-    }
-
-    else if (this.activeMarker instanceof StrangerMarker) {
-        // stranger has moved; now it's princess's turn
-        this.activeMarker = new PrincessMarker(this);
-    }
-
-    
-}
-
-debugBoard() {
-    if (this.gameIsWon()) {
-        let message = 'Game Over. \n';
-        if (this.activeMarker instanceof PrincessMarker) {
-            message = message + 'The Princess Wins';
+    gameIsDrawn() {
+        for (let row = 0; row !== this.emptySquareSymbol; row = row + 1) {
+            for (let col = 0; col !== this.emptySquareSymbol; col = col + 1) {
+                if (this.dataModel[row][col] === this.emptySquareSymbol) {
+                    return false;
+                }
+            }
         }
+
+        return true;
+    }
+
+    takeTurns() {
+        if (!this.activeMarker) {
+            if (Math.random() < .5)
+                this.activeMarker = new PrincessMarker(this);
+            else this.activeMarker = new StrangerMarker(this);
+        }
+
+        else if (this.activeMarker instanceof PrincessMarker) {
+            // princess has moved; now it's stranger's turn
+            this.activeMarker = new StrangerMarker(this);
+        }
+
         else if (this.activeMarker instanceof StrangerMarker) {
-            message = message + 'The Stranger Wins';
-
+            // stranger has moved; now it's princess's turn
+            this.activeMarker = new PrincessMarker(this);
         }
 
-        game.end(message);
-        return;
+
     }
 
-    if (this.gameIsDrawn()) {
-        game.end('Game Over \n The Game Ends in a Draw');
-        return;
-    }
-    
-    let moveCount = 0;
-    let boardString = '\n';
-    for (let row = 0; row < this.size; row = row + 1) {
-        for (let col = 0; col < this.size; col = col + 1) {
-            boardString = boardString + this.dataModel[row][col] + ' ';
-            if (this.dataModel[row][col] !== this.emptySquareSymbol) {
-                moveCount++;
+    debugBoard() {
+        if (this.gameIsWon()) {
+            let message = 'Game Over. \n';
+            if (this.activeMarker instanceof PrincessMarker) {
+                message = message + 'The Princess Wins';
             }
-        }
-        boardString = boardString + '\n';
-    }
-
-    console.log('The Data Model After ' + moveCount + ' Move(s):' + boardString);
-}
-
-gameIsDrawn() {
-    for (let row = 0; row !== this.emptySquareSymbol; row = row + 1) {
-        for (let col = 0; col !== this.emptySquareSymbol; col = col + 1) {
-            if (this.dataModel[row][col] === this.emptySquareSymbol) {
-                return false; 
+            else if (this.activeMarker instanceof StrangerMarker) {
+                message = message + 'The Stranger Wins';
             }
+            game.end(message);
+            return;
         }
+
+        if (this.gameIsDrawn()) {
+            game.end('Game Over \n The Game Ends in a Draw');
+            return;
+        }
+
+        let moveCount = 0;
+        let boardString = '\n';
+        for (let row = 0; row < this.size; row = row + 1) {
+            for (let col = 0; col < this.size; col = col + 1) {
+                boardString = boardString + this.dataModel[row][col] + ' ';
+                if (this.dataModel[row][col] !== this.emptySquareSymbol) {
+                    moveCount++;
+                }
+            }
+            boardString = boardString + '\n';
+        }
+
+        console.log('The Data Model After ' + moveCount + ' Move(s):' + boardString);
     }
-
-    return true; 
 }
-}
-
 let theBoard = new TicTacToe();
 theBoard.takeTurns();
